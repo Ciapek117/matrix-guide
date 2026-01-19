@@ -1,14 +1,15 @@
+# =========================
 # Matrix Guide
 # By: Alan Gładyś, Martyna Hedeszyńska
 #
-# Operacje na macierzach z walidacją danych
-# oraz świadomą transpozycją wybieraną przez użytkownika
+# =========================
 
 
 # =========================
 # FUNKCJE POMOCNICZE
 # =========================
 
+# Funkcja do czytelnego wyświetlania macierzy
 def print_matrix(matrix):
     for row in matrix:
         for value in row:
@@ -17,19 +18,29 @@ def print_matrix(matrix):
     print()
 
 
+# Transpozycja macierzy (zamiana wierszy na kolumny)
 def transpose_matrix(matrix):
     transposed = []
+
+    # Iteracja po kolumnach macierzy wejściowej
     for j in range(len(matrix[0])):
         transposed.append([])
+
+        # Iteracja po wierszach macierzy wejściowej
         for i in range(len(matrix)):
             transposed[j].append(matrix[i][j])
+
     return transposed
 
 
+# Sprawdzenie czy macierze mają takie same wymiary
+# (warunek dodawania i odejmowania)
 def can_add(A, B):
     return len(A) == len(B) and len(A[0]) == len(B[0])
 
 
+# Sprawdzenie warunku mnożenia macierzy
+# liczba kolumn A = liczba wierszy B
 def can_multiply(A, B):
     return len(A[0]) == len(B)
 
@@ -38,6 +49,7 @@ def can_multiply(A, B):
 # INTERAKCJA Z UŻYTKOWNIKIEM
 # =========================
 
+# Pytanie o transpozycję macierzy
 def ask_for_transpose():
     print("\nKtórą macierz chcesz przetransponować?")
     print("A - transponuj macierz A")
@@ -48,9 +60,10 @@ def ask_for_transpose():
         choice = input("Wybór (A/B/N): ").strip().upper()
         if choice in ["A", "B", "N"]:
             return choice
-        print("Niepoprawny wybór. Wpisz A, B lub N.")
+        print("Niepoprawny wybór.")
 
 
+# Informacja o błędnych wymiarach macierzy (w razie błędu)
 def inform_about_dimensions(A, B, operation):
     print(f"\nNie można wykonać operacji {operation}.")
     print(f"Wymiary A: {len(A)} x {len(A[0])}")
@@ -58,6 +71,7 @@ def inform_about_dimensions(A, B, operation):
     print("Możesz spróbować transpozycji jednej z macierzy.")
 
 
+# Pobieranie macierzy od użytkownika
 def get_matrix(name):
     print(f"\nPodaj wymiary macierzy {name}")
 
@@ -65,13 +79,11 @@ def get_matrix(name):
         try:
             rows = int(input("Liczba wierszy: "))
             cols = int(input("Liczba kolumn: "))
-
-            if rows <= 0 or cols <= 0:
-                print("Wymiary muszą być dodatnie.")
-                continue
-            break
+            if rows > 0 and cols > 0:
+                break
+            print("Wymiary muszą być dodatnie.")
         except ValueError:
-            print("Błąd: wymiary muszą być liczbami całkowitymi.")
+            print("Wpisz liczbę całkowitą.")
 
     matrix = []
     print(f"\nWprowadzaj dane do macierzy {name}:")
@@ -85,17 +97,19 @@ def get_matrix(name):
                     row.append(value)
                     break
                 except ValueError:
-                    print("Błąd: wpisz liczbę.")
+                    print("Wpisz liczbę.")
         matrix.append(row)
 
     return matrix
 
 
 # =========================
-# DODAWANIE 
+# DODAWANIE
 # =========================
 
 def sum_matrices(A, B):
+
+    # Sprawdzenie możliwości dodawania
     if not can_add(A, B):
         inform_about_dimensions(A, B, "dodawania")
         choice = ask_for_transpose()
@@ -105,7 +119,6 @@ def sum_matrices(A, B):
         elif choice == "B":
             B = transpose_matrix(B)
         else:
-            print("Operacja przerwana.")
             return
 
     if not can_add(A, B):
@@ -113,6 +126,8 @@ def sum_matrices(A, B):
         return
 
     result = []
+
+    # Dodawanie element po elemencie
     for i in range(len(A)):
         result.append([])
         for j in range(len(A[0])):
@@ -127,6 +142,7 @@ def sum_matrices(A, B):
 # =========================
 
 def sub_matrices(A, B):
+
     if not can_add(A, B):
         inform_about_dimensions(A, B, "odejmowania")
         choice = ask_for_transpose()
@@ -136,7 +152,6 @@ def sub_matrices(A, B):
         elif choice == "B":
             B = transpose_matrix(B)
         else:
-            print("Operacja przerwana.")
             return
 
     if not can_add(A, B):
@@ -144,6 +159,8 @@ def sub_matrices(A, B):
         return
 
     result = []
+
+    # Odejmowanie element po elemencie
     for i in range(len(A)):
         result.append([])
         for j in range(len(A[0])):
@@ -158,141 +175,150 @@ def sub_matrices(A, B):
 # =========================
 
 def multiply_matrices(A, B):
-    # Sprawdzamy, czy mnożenie A · B jest możliwe
+
     if not can_multiply(A, B):
-        inform_about_dimensions(A, B, "mnożenia (A · B)")
-        print("Uwaga: kolejność mnożenia ma znaczenie!")
+        inform_about_dimensions(A, B, "mnożenia")
         choice = ask_for_transpose()
 
-        # Transpozycja wybranej macierzy
         if choice == "A":
             A = transpose_matrix(A)
         elif choice == "B":
             B = transpose_matrix(B)
         else:
-            print("Operacja przerwana.")
             return
 
-    # Ponowne sprawdzenie po ewentualnej transpozycji (W przypadku gdy transpozycja nie pomogła)
     if not can_multiply(A, B):
         print("Błąd: nie można wykonać mnożenia.")
         return
 
     result = []
 
-    # Iterujemy po wierszach macierzy A
+    # Mnożenie macierzy
     for i in range(len(A)):
         result.append([])
-
-        # Iterujemy po kolumnach macierzy B
         for j in range(len(B[0])):
             s = 0
-
-            # Obliczamy iloczyn wiersza i kolumny
             for k in range(len(B)):
                 s += A[i][k] * B[k][j]
-
-            # Zaokrąglamy wynik do 2 miejsc po przecinku
             result[i].append(round(s, 2))
 
     print("\nWynik mnożenia A · B:")
     print_matrix(result)
 
 
-
 # =========================
-# DZIELENIE (A · B⁻¹)
+# MACIERZ ODWROTNA – METODA Z WYZNACZNIKA
 # =========================
 
-def identity_matrix(n):
-    I = []
+# Obliczanie wyznacznika macierzy (rekurencyjnie)
+def determinant(matrix):
+    n = len(matrix)
+
+    # Przypadek 1x1
+    if n == 1:
+        return matrix[0][0]
+
+    # Przypadek 2x2
+    if n == 2:
+        return matrix[0][0]*matrix[1][1] - matrix[0][1]*matrix[1][0]
+
+    det = 0
+
+    # Rozwinięcie Laplace'a po pierwszym wierszu
+    for col in range(n):
+        sub = []
+        for i in range(1, n):
+            sub.append(matrix[i][:col] + matrix[i][col+1:])
+
+        det += ((-1) ** col) * matrix[0][col] * determinant(sub)
+
+    return det
+
+# Tworzenie podmacierzy z głównej macierzy (dopełnienia algebraiczne)
+def cofactor_matrix(matrix):
+    n = len(matrix)
+    cofactors = []
+
     for i in range(n):
         row = []
         for j in range(n):
-            row.append(1 if i == j else 0)
-        I.append(row)
-    return I
+            sub = []
+            for r in range(n):
+                if r != i:
+                    sub.append(matrix[r][:j] + matrix[r][j+1:])
+
+            value = ((-1) ** (i + j)) * determinant(sub)
+            row.append(value)
+        cofactors.append(row)
+
+    return cofactors
 
 
+# Obliczanie macierzy odwrotnej z wyznacznika
 def inverse_matrix(matrix):
+
     n = len(matrix)
 
+    # Sprawdzenie czy macierz jest kwadratowa
     for row in matrix:
         if len(row) != n:
             print("Błąd: macierz nie jest kwadratowa.")
             return None
 
-    A = [row.copy() for row in matrix]
-    I = identity_matrix(n)
+    det = determinant(matrix)
 
+    # Macierz nieodwracalna
+    if det == 0:
+        print("Błąd: wyznacznik = 0, brak macierzy odwrotnej.")
+        return None
+
+    # Macierz dopełnień algebraicznych
+    cof = cofactor_matrix(matrix)
+
+    # Transpozycja macierzy kofaktorów 
+    adj = transpose_matrix(cof)
+
+    inverse = []
+
+    # Dzielenie przez wyznacznik
     for i in range(n):
-        if A[i][i] == 0:
-            print("Błąd: macierz nie ma odwrotności.")
-            return None
-
-        d = A[i][i]
+        inverse.append([])
         for j in range(n):
-            A[i][j] /= d
-            I[i][j] /= d
+            inverse[i].append(round(adj[i][j] / det, 2))
 
-        for k in range(n):
-            if k != i:
-                factor = A[k][i]
-                for j in range(n):
-                    A[k][j] -= factor * A[i][j]
-                    I[k][j] -= factor * I[i][j]
+    return inverse
 
-    return I
 
+# =========================
+# DZIELENIE MACIERZY
+# =========================
 
 def divide_matrices(A, B):
-    print("\nDzielenie macierzy:")
 
+    print("\nDzielenie macierzy:")
     print("1 - A · B⁻¹")
     print("2 - B⁻¹ · A")
 
-    # Pobieramy wybór użytkownika
-    while True:
-        choice = input("Wybierz sposób dzielenia (1/2): ").strip()
-        if choice in ["1", "2"]:
-            break
-        print("Niepoprawny wybór.")
+    choice = input("Wybór (1/2): ").strip()
 
-    # Obliczamy macierz odwrotną B
+    # Obliczanie macierzy odwrotnej B
     B_inv = inverse_matrix(B)
     if B_inv is None:
         print("Nie można wykonać dzielenia.")
         return
 
-    # Wariant 1: A · B⁻¹
+    # Wybór kolejności mnożenia
     if choice == "1":
         left = A
         right = B_inv
         opis = "A · B⁻¹"
-
-    # Wariant 2: B⁻¹ · A
     else:
         left = B_inv
         right = A
         opis = "B⁻¹ · A"
 
-    # Sprawdzamy, czy wybrane mnożenie jest możliwe
     if not can_multiply(left, right):
-        inform_about_dimensions(left, right, "dzielenia")
-        trans_choice = ask_for_transpose()
-
-        # Transpozycja wybranej macierzy
-        if trans_choice == "A":
-            left = transpose_matrix(left)
-        elif trans_choice == "B":
-            right = transpose_matrix(right)
-        else:
-            print("Operacja przerwana.")
-            return
-
-    # Ostateczna walidacja
-    if not can_multiply(left, right):
-        print("Błąd: nie można wykonać dzielenia.")
+        print("Błąd: nieprawidłowe wymiary.")
         return
 
     result = []
@@ -304,12 +330,7 @@ def divide_matrices(A, B):
             s = 0
             for k in range(len(right)):
                 s += left[i][k] * right[k][j]
-
-            # Zaokrąglanie wyniku
             result[i].append(round(s, 2))
 
     print(f"\nWynik dzielenia ({opis}):")
     print_matrix(result)
-
-
-
