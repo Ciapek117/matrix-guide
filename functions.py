@@ -224,7 +224,7 @@ def determinant(matrix):
 
     det = 0
 
-    # Rozwinięcie Laplace'a po pierwszym wierszu
+    # Dalszy podział macierzy na mniejsze podmacierze
     for col in range(n):
         sub = []
         for i in range(1, n):
@@ -275,7 +275,8 @@ def inverse_matrix(matrix):
     # Macierz dopełnień algebraicznych
     cof = cofactor_matrix(matrix)
 
-    # Transpozycja macierzy kofaktorów 
+    # Transpozycja macierzy kofaktorów → adjugata,
+    # zgodnie ze wzorem: A⁻¹ = (1 / det(A)) · adj(A)
     adj = transpose_matrix(cof)
 
     inverse = []
