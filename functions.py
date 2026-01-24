@@ -16,6 +16,7 @@ def print_matrix(matrix):
             print(value, end=" ")
         print()
     print()
+    input("Naciśnij Enter, aby kontynuować...")
 
 
 # Transpozycja macierzy (zamiana wierszy na kolumny)
@@ -70,6 +71,35 @@ def inform_about_dimensions(A, B, operation):
     print(f"Wymiary B: {len(B)} x {len(B[0])}")
     print("Możesz spróbować transpozycji jednej z macierzy.")
 
+# Wybór macierzy do edycji przez użytkownika
+def edit_matrix(A, B):
+
+    # Sprawdzenie, czy macierze są puste
+    if not A and not B:
+        print("\nNie zdefiniowano macierzy A ani B. Musisz wprowadzić obie macierze.")
+        A = get_matrix("A")
+        B = get_matrix("B")
+        return A, B
+
+    # Jeśli przynajmniej jedna macierz nie jest pusta, użytkownik wybiera którą edytować
+    print("\nKtórą macierz chcesz edytować?")
+    print("A - edytuj macierz A")
+    print("B - edytuj macierz B")
+
+    while True:
+        choice = input("Wybór (A/B): ").strip().upper()
+        if choice in ["A", "B"]:
+            break
+        print("Niepoprawny wybór. Wpisz A lub B.")
+
+    if choice == "A":
+        A = get_matrix("A")
+    else:
+        B = get_matrix("B")
+
+    return A, B
+
+
 
 # Pobieranie macierzy od użytkownika
 def get_matrix(name):
@@ -102,7 +132,6 @@ def get_matrix(name):
 
     return matrix
 
-
 # =========================
 # DODAWANIE
 # =========================
@@ -111,18 +140,8 @@ def sum_matrices(A, B):
 
     # Sprawdzenie możliwości dodawania
     if not can_add(A, B):
-        inform_about_dimensions(A, B, "dodawania")
-        choice = ask_for_transpose()
-
-        if choice == "A":
-            A = transpose_matrix(A)
-        elif choice == "B":
-            B = transpose_matrix(B)
-        else:
-            return
-
-    if not can_add(A, B):
-        print("Błąd: nie można dodać macierzy.")
+        print(f"Błąd: nie można dodać macierzy. Wymiary A: {len(A)}x{len(A[0])}, B: {len(B)}x{len(B[0])}")
+        print("Macierze muszą mieć takie same wymiary.")
         return
 
     result = []
@@ -143,19 +162,10 @@ def sum_matrices(A, B):
 
 def sub_matrices(A, B):
 
+    # Sprawdzenie możliwości odejmowania
     if not can_add(A, B):
-        inform_about_dimensions(A, B, "odejmowania")
-        choice = ask_for_transpose()
-
-        if choice == "A":
-            A = transpose_matrix(A)
-        elif choice == "B":
-            B = transpose_matrix(B)
-        else:
-            return
-
-    if not can_add(A, B):
-        print("Błąd: nie można odjąć macierzy.")
+        print(f"Błąd: nie można odjąć macierzy. Wymiary A: {len(A)}x{len(A[0])}, B: {len(B)}x{len(B[0])}")
+        print("Macierze muszą mieć takie same wymiary.")
         return
 
     result = []
@@ -214,6 +224,12 @@ def multiply_matrices(A, B):
 def determinant(matrix):
     n = len(matrix)
 
+    # Sprawdzenie, czy macierz jest kwadratowa
+    for row in matrix:
+        if len(row) != n:
+            print("Nie da się obliczyć wyznacznika – macierz nie jest kwadratowa.")
+            return None
+
     # Przypadek 1x1
     if n == 1:
         return matrix[0][0]
@@ -224,7 +240,7 @@ def determinant(matrix):
 
     det = 0
 
-    # Dalszy podział macierzy na mniejsze podmacierze
+    # Dalszy podział macierzy na mniejsze podmacierze 
     for col in range(n):
         sub = []
         for i in range(1, n):
@@ -296,27 +312,38 @@ def inverse_matrix(matrix):
 
 def divide_matrices(A, B):
 
-    print("\nDzielenie macierzy:")
-    print("1 - A · B⁻¹")
-    print("2 - B⁻¹ · A")
-
-    choice = input("Wybór (1/2): ").strip()
+    # Sprawdzenie czy B jest macierzą kwadratową
+    n = len(B)
+    for row in B:
+        if len(row) != n:
+            print("Błąd: macierz B nie jest kwadratowa – nie można wykonać dzielenia.")
+            return
 
     # Obliczanie macierzy odwrotnej B
     B_inv = inverse_matrix(B)
     if B_inv is None:
         print("Nie można wykonać dzielenia.")
         return
+    
+
+    print("\nDzielenie macierzy:")
+    print("1 - A · B⁻¹")
+    print("2 - B⁻¹ · A")
+
+    choice = input("Wybór (1/2): ").strip()
 
     # Wybór kolejności mnożenia
     if choice == "1":
         left = A
         right = B_inv
         opis = "A · B⁻¹"
-    else:
+    elif choice == "2":
         left = B_inv
         right = A
         opis = "B⁻¹ · A"
+    else:
+        print("Niepoprawny wybór.")
+        return
 
     if not can_multiply(left, right):
         print("Błąd: nieprawidłowe wymiary.")
