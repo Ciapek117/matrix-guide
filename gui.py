@@ -114,24 +114,34 @@ class MatrixGUI:
         result = self.multiply(self.A, self.B)
         self.refresh("Iloczyn A · B:\n" + self.format(result))
 
+    # ================= DZIELENIE (POPRAWIONE) =================
+
     def div_ab(self):
-        self.divide(self.A, self.B, "A · B⁻¹")
+        self.divide("A · B⁻¹", reverse=False)
 
     def div_ba(self):
-        self.divide(self.B, self.A, "B⁻¹ · A")
+        self.divide("B⁻¹ · A", reverse=True)
 
-    def divide(self, left, right, label):
-        inv = functions.inverse_matrix(right)
-        if inv is None:
-            self.error("Macierz nieodwracalna.")
+    def divide(self, label, reverse=False):
+        # ZAWSZE odwracamy tylko macierz B
+        invB = functions.inverse_matrix(self.B)
+        if invB is None:
+            self.error("Macierz B jest nieodwracalna.")
             return
 
-        if not functions.can_multiply(left, inv):
+        if reverse:
+            left, right = invB, self.A
+        else:
+            left, right = self.A, invB
+
+        if not functions.can_multiply(left, right):
             self.error("Nieprawidłowe wymiary.")
             return
 
-        result = self.multiply(left, inv)
+        result = self.multiply(left, right)
         self.refresh(f"Wynik {label}:\n" + self.format(result))
+
+    # ================= POMOCNICZE =================
 
     def multiply(self, A, B):
         return [

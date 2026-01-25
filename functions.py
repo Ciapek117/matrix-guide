@@ -312,16 +312,12 @@ def inverse_matrix(matrix):
 
 def divide_matrices(A, B):
 
-    print("\nDzielenie macierzy:")
-    print("1 - A · B⁻¹")
-    print("2 - B⁻¹ · A")
-
-    choice = input("Wybór (1/2): ").strip()
-
-    # Sprawdzenie czy macierz B jest kwadratowa
-    if len(B) != len(B[0]):
-        print("Błąd: macierz B nie jest kwadratowa. Nie można obliczyć macierzy odwrotnej.")
-        return
+    # Sprawdzenie czy B jest macierzą kwadratową
+    n = len(B)
+    for row in B:
+        if len(row) != n:
+            print("Błąd: macierz B nie jest kwadratowa – nie można wykonać dzielenia.")
+            return
 
     # Obliczanie macierzy odwrotnej B
     B_inv = inverse_matrix(B)
@@ -341,10 +337,13 @@ def divide_matrices(A, B):
         left = A
         right = B_inv
         opis = "A · B⁻¹"
-    else:
+    elif choice == "2":
         left = B_inv
         right = A
         opis = "B⁻¹ · A"
+    else:
+        print("Niepoprawny wybór.")
+        return
 
     if not can_multiply(left, right):
         print("Błąd: nieprawidłowe wymiary.")
