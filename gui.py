@@ -15,10 +15,19 @@ class MatrixGUI:
         self.matrix_b = [[2, 1], [1, 1]]
 
         self.build_ui()
+        self.center_window(self.root, 1000,800)
         self.refresh()
 
     # ================= UI =================
 
+    def center_window(self, window, width, height):
+        window.update_idletasks()
+        x = (window.winfo_screenwidth() // 2) - (width // 2)
+        y = (window.winfo_screenheight() // 2) - (height // 2)
+        window.geometry(f"{width}x{height}+{x}+{y}")
+
+
+    
     def build_ui(self):
         tk.Label(
             self.root,
@@ -36,31 +45,70 @@ class MatrixGUI:
         )
         self.display.pack(pady=10)
 
-        button_frame = tk.Frame(self.root)
-        button_frame.pack()
+        # ================= SEKCJE OBOK SIEBIE =================
 
-        buttons = [
-            ("A + B", self.add_matrices),
-            ("A - B", self.subtract_matrices),
-            ("A · B", self.multiply_matrices),
-            ("A · B⁻¹", self.divide_a_by_b),
-            ("B⁻¹ · A", self.divide_b_by_a),
-            ("Transpozycja A", lambda: self.transpose_matrix("A")),
-            ("Transpozycja B", lambda: self.transpose_matrix("B")),
-            ("Edytuj macierz A", lambda: self.edit_matrix("A")),
-            ("Edytuj macierz B", lambda: self.edit_matrix("B")),
-            ("Losuj nowe macierze", self.generate_random_matrices),
-            ("Wyjście", self.root.quit)
-        ]
+        middle_frame = tk.Frame(self.root)
+        middle_frame.pack(pady=5)
 
-        for i, (label, command) in enumerate(buttons):
-            tk.Button(
-                button_frame,
-                text=label,
-                width=22,
-                height=2,
-                command=command
-            ).grid(row=i // 3, column=i % 3, padx=6, pady=6)
+        def section(parent, title):
+            frame = tk.LabelFrame(
+                parent,
+                text=title,
+                font=("Arial", 10, "bold"),
+                padx=10,
+                pady=10
+            )
+            frame.pack(side=tk.LEFT, padx=10)
+            return frame
+
+        # ---- Operacje podstawowe (LEWA) ----
+        basic = section(middle_frame, "Operacje na macierzach")
+
+        tk.Button(basic, text="A + B", width=22, command=self.add_matrices).grid(row=0, column=0, padx=6, pady=4)
+        tk.Button(basic, text="A - B", width=22, command=self.subtract_matrices).grid(row=0, column=1, padx=6, pady=4)
+        tk.Button(basic, text="A · B", width=22, command=self.multiply_matrices).grid(row=1, column=0, padx=6, pady=4)
+        tk.Button(basic, text="A · B⁻¹", width=22, command=self.divide_a_by_b).grid(row=1, column=1, padx=6, pady=4)
+        tk.Button(basic, text="B⁻¹ · A", width=46, command=self.divide_b_by_a).grid(row=2, column=0, columnspan=2, pady=4)
+
+        # ---- Operacje specjalne (PRAWA) ----
+        advanced = section(middle_frame, "Operacje specjalne")
+
+        tk.Button(advanced, text="Transpozycja A", width=22, command=lambda: self.transpose_matrix("A")).grid(row=0, column=0, padx=6, pady=4)
+        tk.Button(advanced, text="Transpozycja B", width=22, command=lambda: self.transpose_matrix("B")).grid(row=0, column=1, padx=6, pady=4)
+
+        tk.Button(advanced, text="Wyznacznik A", width=22, command=lambda: self.show_determinant("A")).grid(row=1, column=0, padx=6, pady=4)
+        tk.Button(advanced, text="Wyznacznik B", width=22, command=lambda: self.show_determinant("B")).grid(row=1, column=1, padx=6, pady=4)
+
+        tk.Button(advanced, text="Macierz odwrotna A", width=22, command=lambda: self.show_inverse("A")).grid(row=2, column=0, padx=6, pady=4)
+        tk.Button(advanced, text="Macierz odwrotna B", width=22, command=lambda: self.show_inverse("B")).grid(row=2, column=1, padx=6, pady=4)
+
+        # ================= EDYCJA =================
+
+        edit = tk.LabelFrame(
+            self.root,
+            text="Edycja",
+            font=("Arial", 10, "bold"),
+            padx=10,
+            pady=10
+        )
+        edit.pack(pady=6)
+
+        tk.Button(edit, text="Edytuj macierz A", width=22, command=lambda: self.edit_matrix("A")).grid(row=0, column=0, padx=6, pady=4)
+        tk.Button(edit, text="Edytuj macierz B", width=22, command=lambda: self.edit_matrix("B")).grid(row=0, column=1, padx=6, pady=4)
+        tk.Button(edit, text="Losuj nowe macierze", width=46, command=self.generate_random_matrices).grid(row=1, column=0, columnspan=2, pady=4)
+
+        # ================= WYJŚCIE =================
+
+        tk.Button(
+            self.root,
+            text="Wyjście",
+            width=50,
+            height=2,
+            bg="#e74c3c",
+            fg="white",
+            command=self.root.quit
+        ).pack(pady=10)
+
 
     # ================= DISPLAY =================
 
@@ -137,6 +185,27 @@ class MatrixGUI:
         result = self.perform_multiplication(left_matrix, right_matrix)
         self.refresh(f"Wynik {label}:\n" + self.format_matrix(result))
 
+    def show_determinant(self, matrix_name):
+        matrix = self.matrix_a if matrix_name == "A" else self.matrix_b
+
+        det = functions.determinant(matrix)
+        if det is None:
+            self.show_error("Nie można obliczyć wyznacznika (macierz nie jest kwadratowa).")
+            return
+
+        self.refresh(f"Wyznacznik macierzy {matrix_name}:\n\ndet({matrix_name}) = {round(det, 2)}")
+    
+
+    def show_inverse(self, matrix_name):
+        matrix = self.matrix_a if matrix_name == "A" else self.matrix_b
+
+        inverse = functions.inverse_matrix(matrix)
+        if inverse is None:
+            self.show_error(f"Macierz {matrix_name} jest nieodwracalna lub nie jest kwadratowa.")
+            return
+
+        self.refresh(f"Macierz odwrotna {matrix_name}:\n" + self.format_matrix(inverse))
+
     # ================= POMOCNICZE =================
 
     def perform_multiplication(self, matrix_a, matrix_b):
@@ -157,15 +226,6 @@ class MatrixGUI:
             self.refresh("Transpozycja B:\n" + self.format_matrix(result))
 
     # ================= EDYCJA MACIERZY =================
-
-    def center_window(self, window, width, height):
-        window.update_idletasks()
-        screen_width = window.winfo_screenwidth()
-        screen_height = window.winfo_screenheight()
-        x = (screen_width // 2) - (width // 2)
-        y = (screen_height // 2) - (height // 2)
-        window.geometry(f"{width}x{height}+{x}+{y}")
-
     
     def edit_matrix(self, matrix_name):
         edit_window = tk.Toplevel(self.root)
