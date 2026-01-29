@@ -9,13 +9,13 @@ import sys
 
 def run_gui():
     try:
-        subprocess.run([sys.executable, "gui.py"])
+        subprocess.run([sys.executable, "matrix-guide\gui.py"])
     except Exception as e:
         messagebox.showerror("Błąd", f"Nie udało się uruchomić gui.py:\n{e}")
 
 def run_tutorial():
     try:
-        subprocess.run([sys.executable, "matrixTutorial.py"])
+        subprocess.run([sys.executable, "matrix-guide\matrixTutorial.py"])
     except Exception as e:
         messagebox.showerror("Błąd", f"Nie udało się uruchomić matrixTutorial.py:\n{e}")
 
