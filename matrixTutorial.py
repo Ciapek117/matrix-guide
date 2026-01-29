@@ -654,4 +654,11 @@ text_box = tk.Text(
 text_box.pack(fill=tk.BOTH, expand=True)
 text_box.config(state="disabled")
 
+ttk.Button(
+    button_frame,
+    text="Wyjście",
+    width=24,
+    command=root.destroy
+).pack(pady=10)
+
 root.mainloop()
