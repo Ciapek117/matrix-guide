@@ -43,8 +43,8 @@ B = [ -2  5 ]
        [  6 -4 ]
 
 OBLICZENIA:
-[4 + (-2)   -1 + 5]
-[7 + 6       3 + (-4)]
+[4 + (-2)        -1 + 5]
+[7 + 6            3 + (-4)]
 
 WYNIK:
 [ 2   4 ]
@@ -72,8 +72,8 @@ B = [ 5   2 ]
        [ -4  1 ]
 
 OBLICZENIA:
-[8 - 5     -3 - 2]
-[1 - (-4)  6 - 1]
+[8 - 5            -3 - 2]
+[1 - (-4)        6 - 1]
 
 WYNIK:
 [ 3  -5 ]
@@ -89,7 +89,8 @@ MNOŻENIE MACIERZY (A · B)
 
 CO TO JEST?
 Mnożenie macierzy polega na:
-wiersz × kolumna → suma iloczynów
+wiersz (A) × kolumna (B) → suma iloczynów
+czyli: A[i,1] · B[1,j] + A[i,2] · B[2,j] + ... + A[i,n] · B[n,j]
 
 WARUNEK:
 Liczba kolumn A = liczba wierszy B
@@ -142,7 +143,7 @@ WYNIK:
 
 UWAGI:
 • A·B ≠ B·A
-• Najczęstszy błąd: złe wymiary
+• Wymiary MUSZĄ się zgadzać ( kolumny A = wiersze B )
 """
 
 TRANSPOSE_TEXT = """
@@ -172,9 +173,11 @@ DET_TEXT = """
 WYZNACZNIK MACIERZY – METODA ROZWINIĘCIA LAPLACE’A
 
 Wyznacznik macierzy kwadratowej można obliczyć rozwijając ją względem dowolnego wiersza lub kolumny.
+
 W tym procesie wykorzystujemy:
 • MINI MACIERZE (MINORY) – macierze powstałe po usunięciu wiersza i kolumny danego elementu
 • DOPEŁNIENIA ALGEBRAICZNE – znak (-1)^(i+j) pomnożony przez wyznacznik minora
+• COFACTOR = DOPEŁNIENIE ALGEBRAICZNE
 
 WZÓR OGÓLNY (rozwinięcie względem wiersza i):
 det(A) = Σ aᵢⱼ · (-1)^(i+j) · det(Mᵢⱼ)
@@ -259,12 +262,13 @@ det(A) = 45 − 2 + 40
 det(A) = 83
 
 ------------------------------------------------
-UWAGI KOŃCOWE
+UWAGI
 ------------------------------------------------
 • det(A) = 0 → macierz nie ma odwrotności
 • Dla macierzy nxn: rozwinięcie można zrobić względem dowolnego wiersza lub kolumny
 • Mini macierz = usunięty wiersz i kolumna elementu
 • Znaki dopełnień algebraicznych: (+ − + − …) wg wzoru (-1)^(i+j)
+• Macierz MUSI być kwadratowa aby obliczyć wyznacznik
 """
 
 
@@ -278,7 +282,7 @@ MACIERZ ODWROTNA TO:
 PO CO NAM MACIERZ ODWROTNA?
 • Dzięki niej możemy „dzielić” macierze:
   A / B = A · B⁻¹
-• Bez macierzy odwrotnej nie możemy odwrócić działania macierzowego
+• Bez macierzy odwrotnej nie możemy odwrócić działania macierzowego (np. A · X = B)
 
 ================================================
 PRZYKŁAD 1: MACIERZ 2x2
@@ -328,6 +332,18 @@ SPRAWDZENIE
 ------------------------------------------------
 A · A⁻¹ = I
 
+I = [ 1  0 ]
+     [ 0  1 ]
+
+------------------------------------------------
+BONUS
+------------------------------------------------
+• Przy macierzach 2x2 można skorzystać z uproszczonego wzoru:
+
+A⁻¹ = 1 / (ad − bc) · [  d   −b ]
+                                  [ −c    a ]
+
+
 ================================================
 PRZYKŁAD 2: MACIERZ 3x3
 ================================================
@@ -342,9 +358,9 @@ det(A) = 2·det([1 0; -1 2])
              - 1·det([1 0; 3 2]) 
              + (-1)·det([1 1; 3 -1]) 
 
-det([1 0; -1 2]) = 1*2 - 0*(-1) = 2
-det([1 0; 3 2])  = 1*2 - 0*3  = 2
-det([1 1; 3 -1]) = 1*(-1) - 1*3 = -4
+det([1 0;   -1 2]) = 1*2 - 0*(-1) = 2
+det([1 0;    3 2])  = 1*2 - 0*3  = 2
+det([1 1;    3 -1]) = 1*(-1) - 1*3 = -4
 
 det(A) = 2*2 - 1*2 + (-1)*(-4) = 4 - 2 + 4 = 6
 
@@ -354,19 +370,19 @@ KROK 2: MACIERZ DOPEŁNIEŃ (COFAKTORY)
 Liczymy cofaktory dla każdego elementu A[i][j]:
 
 1) Pierwszy wiersz:
-- c11 = det([1 0; -1 2]) * (+1) = 2
-- c12 = det([1 0; 3 2]) * (-1) = -2
-- c13 = det([1 1; 3 -1]) * (+1) = -4
+- c11 = det([1 0;   -1 2]) * (+1) = 2
+- c12 = det([1 0;    3 2]) * (-1) = -2
+- c13 = det([1 1;    3 -1]) * (+1) = -4
 
 2) Drugi wiersz:
-- c21 = det([1 -1; -1 2]) * (-1) = (1*2 - (-1)*(-1)) * (-1) = (2-1)*(-1) = -1
-- c22 = det([2 -1; 3 2]) * (+1) = (2*2 - (-1)*3) = 4+3 = 7
-- c23 = det([2 1; 3 -1]) * (-1) = (2*(-1) - 1*3) * (-1) = (-2 -3)*(-1) = 5
+- c21 = det([1 -1;   -1 2]) * (-1) = (1*2 - (-1)*(-1)) * (-1) = (2-1)*(-1) = -1
+- c22 = det([2 -1;   3 2]) * (+1) = (2*2 - (-1)*3) = 4+3 = 7
+- c23 = det([2 1;    3 -1]) * (-1) = (2*(-1) - 1*3) * (-1) = (-2 -3)*(-1) = 5
 
 3) Trzeci wiersz:
-- c31 = det([1 -1; 1 0]) * (+1) = (1*0 - (-1)*1) = 1
-- c32 = det([2 -1; 1 0]) * (-1) = (2*0 - (-1)*1)*(-1) = -1
-- c33 = det([2 1; 1 1]) * (+1) = (2*1 - 1*1) = 1
+- c31 = det([1 -1;   1 0]) * (+1) = (1*0 - (-1)*1) = 1
+- c32 = det([2 -1;   1 0]) * (-1) = (2*0 - (-1)*1)*(-1) = -1
+- c33 = det([2 1;    1 1]) * (+1) = (2*1 - 1*1) = 1
 
 Macierz cofaktorów C:
 
@@ -394,6 +410,10 @@ A⁻¹ = [  2/6  -1/6   1/6 ]
 SPRAWDZENIE
 ------------------------------------------------
 A · A⁻¹ = I
+
+I = [ 1  0  0 ]
+     [ 0  1  0 ]
+     [ 0  0  1 ]
 
 ================================================
 PODSUMOWANIE
@@ -552,10 +572,16 @@ KROK 3: MACIERZ ODWROTNA
 ------------------------------------------------
 B⁻¹ = 1/7 · adj(B)
 
-B⁻¹ =
+adj(B) =
 [  3  -2   1 ]
 [  2   1  -4 ]
 [ -1   3   2 ]
+
+B⁻¹ = 
+[  3/7  -2/7   1/7 ]
+[  2/7   1/7  -4/7 ]
+[ -1/7   3/7   2/7 ]
+
 
 ------------------------------------------------
 KROK 4: ZAMIANA DZIELENIA NA MNOŻENIE
