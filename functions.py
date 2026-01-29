@@ -9,6 +9,10 @@
 # FUNKCJE POMOCNICZE
 # =========================
 
+import time
+import numpy as np
+
+
 # Funkcja do czytelnego wyświetlania macierzy
 def print_matrix(matrix):
     for row in matrix:
@@ -362,3 +366,129 @@ def divide_matrices(A, B):
 
     print(f"\nWynik dzielenia ({opis}):")
     print_matrix(result)
+
+'''# =========================
+# PORÓWNANIE CZASU – RĘCZNY KOD VS NUMPY
+# =========================
+
+def time_comparison_multiply(A, B):
+    # --- ręczny kod ---
+    start_manual = time.perf_counter()
+
+    result_manual = [
+        [
+            sum(A[i][k] * B[k][j] for k in range(len(B)))
+            for j in range(len(B[0]))
+        ]
+        for i in range(len(A))
+    ]
+
+    end_manual = time.perf_counter()
+
+    # --- numpy ---
+    np_A = np.array(A)
+    np_B = np.array(B)
+
+    start_numpy = time.perf_counter() #dokladniejszy pomiar czasu
+    result_numpy = np_A @ np_B
+    end_numpy = time.perf_counter()
+
+    return {
+        "manual_result": result_manual,
+        "numpy_result": result_numpy.tolist(),
+        "manual_time": end_manual - start_manual,
+        "numpy_time": end_numpy - start_numpy
+    }'''
+
+# =========================
+# PORÓWNANIE CZASU – RÓŻNE OPERACJE
+# =========================
+
+def benchmark(operation, A, B, repeats=1000):
+    """
+    operation:
+    'add', 'sub', 'mul', 'a_div_b', 'b_div_a'
+    """
+
+    # --- ręczna implementacja ---
+    start_manual = time.perf_counter()
+
+    for _ in range(repeats):
+        if operation == "add":
+            result_manual = [
+                [A[i][j] + B[i][j] for j in range(len(A[0]))]
+                for i in range(len(A))
+            ]
+
+        elif operation == "sub":
+            result_manual = [
+                [A[i][j] - B[i][j] for j in range(len(A[0]))]
+                for i in range(len(A))
+            ]
+
+        elif operation == "mul":
+            result_manual = [
+                [
+                    sum(A[i][k] * B[k][j] for k in range(len(B)))
+                    for j in range(len(B[0]))
+                ]
+                for i in range(len(A))
+            ]
+
+        elif operation == "a_div_b":
+            B_inv = inverse_matrix(B)
+            if B_inv is None:
+                return None
+            result_manual = [
+                [
+                    sum(A[i][k] * B_inv[k][j] for k in range(len(B_inv)))
+                    for j in range(len(B_inv[0]))
+                ]
+                for i in range(len(A))
+            ]
+
+        elif operation == "b_div_a":
+            A_inv = inverse_matrix(A)
+            if A_inv is None:
+                return None
+            result_manual = [
+                [
+                    sum(A_inv[i][k] * B[k][j] for k in range(len(B)))
+                    for j in range(len(B[0]))
+                ]
+                for i in range(len(A_inv))
+            ]
+
+    end_manual = time.perf_counter()
+
+    # --- numpy ---
+    np_A = np.array(A)
+    np_B = np.array(B)
+
+    start_numpy = time.perf_counter()
+
+    for _ in range(repeats):
+        if operation == "add":
+            result_numpy = np_A + np_B
+
+        elif operation == "sub":
+            result_numpy = np_A - np_B
+
+        elif operation == "mul":
+            result_numpy = np_A @ np_B
+
+        elif operation == "a_div_b":
+            result_numpy = np_A @ np.linalg.inv(np_B)
+
+        elif operation == "b_div_a":
+            result_numpy = np.linalg.inv(np_A) @ np_B
+
+    end_numpy = time.perf_counter()
+
+    return {
+        "manual_result": result_manual,
+        "numpy_result": result_numpy.tolist(),
+        "manual_time": (end_manual - start_manual) / repeats,
+        "numpy_time": (end_numpy - start_numpy) / repeats
+    }
+

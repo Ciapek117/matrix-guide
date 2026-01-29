@@ -15,7 +15,7 @@ class MatrixGUI:
         self.matrix_b = [[2, 1], [1, 1]]
 
         self.build_ui()
-        self.center_window(self.root, 1000,800)
+        self.center_window(self.root, 1200,800)
         self.refresh()
 
     # ================= UI =================
@@ -50,7 +50,14 @@ class MatrixGUI:
         middle_frame = tk.Frame(self.root)
         middle_frame.pack(pady=5)
 
-        def section(parent, title):
+        left_column = tk.Frame(middle_frame)
+        left_column.pack(side=tk.LEFT, padx=10)
+
+        right_column = tk.Frame(middle_frame)
+        right_column.pack(side=tk.LEFT, padx=10)
+
+
+        def section(parent, title, width=360):
             frame = tk.LabelFrame(
                 parent,
                 text=title,
@@ -58,20 +65,63 @@ class MatrixGUI:
                 padx=10,
                 pady=10
             )
-            frame.pack(side=tk.LEFT, padx=10)
+            frame.pack_propagate(False)
             return frame
 
         # ---- Operacje podstawowe (LEWA) ----
-        basic = section(middle_frame, "Operacje na macierzach")
+        basic = section(left_column, "Operacje na macierzach")
+        basic.pack(pady=(0,10))
 
         tk.Button(basic, text="A + B", width=22, command=self.add_matrices).grid(row=0, column=0, padx=6, pady=4)
         tk.Button(basic, text="A - B", width=22, command=self.subtract_matrices).grid(row=0, column=1, padx=6, pady=4)
         tk.Button(basic, text="A · B", width=22, command=self.multiply_matrices).grid(row=1, column=0, padx=6, pady=4)
         tk.Button(basic, text="A · B⁻¹", width=22, command=self.divide_a_by_b).grid(row=1, column=1, padx=6, pady=4)
         tk.Button(basic, text="B⁻¹ · A", width=46, command=self.divide_b_by_a).grid(row=2, column=0, columnspan=2, pady=4)
+        
+        # ---- Benchmark (operacje podstawowe) ----
+        benchmark = section(left_column, "Benchmark")
+        benchmark.pack()
 
+        tk.Button(
+            benchmark,
+            text="A + B",
+            width=22,
+            command=lambda: self.run_benchmark("add", "Suma A + B")
+        ).grid(row=0, column=0, padx=6, pady=4)
+
+        tk.Button(
+            benchmark,
+            text="A - B",
+            width=22,
+            command=lambda: self.run_benchmark("sub", "Różnica A - B")
+        ).grid(row=0, column=1, padx=6, pady=4)
+
+        tk.Button(
+            benchmark,
+            text="A · B",
+            width=22,
+            command=lambda: self.run_benchmark("mul", "Iloczyn A · B")
+        ).grid(row=1, column=0, padx=6, pady=4)
+
+        tk.Button(
+            benchmark,
+            text="A · B⁻¹",
+            width=22,
+            command=lambda: self.run_benchmark("a_div_b", "A · B⁻¹")
+        ).grid(row=1, column=1, padx=6, pady=4)
+
+        tk.Button(
+            benchmark,
+            text="B⁻¹ · A",
+            width=46,
+            command=lambda: self.run_benchmark("b_div_a", "B⁻¹ · A")
+        ).grid(row=2, column=0, columnspan=2, pady=4)
+
+        
+        
         # ---- Operacje specjalne (PRAWA) ----
-        advanced = section(middle_frame, "Operacje specjalne")
+        advanced = section(right_column, "Operacje specjalne")
+        advanced.pack(anchor="n")
 
         tk.Button(advanced, text="Transpozycja A", width=22, command=lambda: self.transpose_matrix("A")).grid(row=0, column=0, padx=6, pady=4)
         tk.Button(advanced, text="Transpozycja B", width=22, command=lambda: self.transpose_matrix("B")).grid(row=0, column=1, padx=6, pady=4)
@@ -85,13 +135,13 @@ class MatrixGUI:
         # ================= EDYCJA =================
 
         edit = tk.LabelFrame(
-            self.root,
+            right_column,
             text="Edycja",
             font=("Arial", 10, "bold"),
             padx=10,
             pady=10
         )
-        edit.pack(pady=6)
+        edit.pack(pady=(20,0))
 
         tk.Button(edit, text="Edytuj macierz A", width=22, command=lambda: self.edit_matrix("A")).grid(row=0, column=0, padx=6, pady=4)
         tk.Button(edit, text="Edytuj macierz B", width=22, command=lambda: self.edit_matrix("B")).grid(row=0, column=1, padx=6, pady=4)
@@ -205,6 +255,61 @@ class MatrixGUI:
             return
 
         self.refresh(f"Macierz odwrotna {matrix_name}:\n" + self.format_matrix(inverse))
+
+    '''def multiply_with_benchmark(self):
+        if not functions.can_multiply(self.matrix_a, self.matrix_b):
+            self.show_error("Nie można mnożyć macierzy (złe wymiary).")
+            return
+
+        data = functions.time_comparison_multiply(self.matrix_a, self.matrix_b)
+
+        speedup = (
+            data["manual_time"] / data["numpy_time"]
+            if data["numpy_time"] > 0 else float("inf")
+        )
+
+        result_text = (
+            "Iloczyn A · B (benchmark):\n\n"
+            + self.format_matrix(data["manual_result"])
+            + "\nCzas ręczny : {:.8f} s"
+            + "\nCzas numpy  : {:.8f} s"
+            + "\nPrzyspieszenie: {:.2f}x 🚀"
+        ).format(
+            data["manual_time"],
+            data["numpy_time"],
+            speedup
+        )
+
+        self.refresh(result_text)'''
+
+    
+    def run_benchmark(self, operation, label):
+        data = functions.benchmark(operation, self.matrix_a, self.matrix_b)
+
+        if data is None:
+            self.show_error("Nie można wykonać operacji (macierz nieodwracalna).")
+            return
+
+        speedup = (
+            data["manual_time"] / data["numpy_time"]
+            if data["numpy_time"] > 0 else float("inf")
+        )
+
+        text = (
+            f"{label} (benchmark):\n\n"
+            + self.format_matrix(data["manual_result"])
+            + "\nCzas ręczny : {:.8f} s"
+            + "\nCzas numpy  : {:.8f} s"
+            + "\nPrzyspieszenie: {:.2f}x 🚀"
+        ).format(
+            data["manual_time"],
+            data["numpy_time"],
+            speedup
+        )
+
+        self.refresh(text)
+
+
 
     # ================= POMOCNICZE =================
 
