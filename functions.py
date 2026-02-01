@@ -2,7 +2,7 @@
 # Matrix Guide
 # By: Alan Gładyś, Martyna Hedeszyńska
 #
-# Logika matematyczna (bez interakcji konsolowej)
+# Logika matematyczna operacji na macierzach
 # =========================
 
 import time

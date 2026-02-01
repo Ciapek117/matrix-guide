@@ -1,6 +1,9 @@
-# main_gui.py
-# Matrix Guide - menu startowe w Tkinter
+# =========================
+# Matrix Guide
 # By: Alan Gładyś, Martyna Hedeszyńska
+#
+# Menu startowe aplikacji
+# =========================
 
 import tkinter as tk
 from tkinter import messagebox

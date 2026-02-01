@@ -1,3 +1,10 @@
+# =========================
+# Matrix Guide
+# By: Alan Gładyś, Martyna Hedeszyńska
+#
+# Aplikacja GUI do operacji na macierzach
+# =========================
+
 import tkinter as tk
 from tkinter import messagebox
 import random

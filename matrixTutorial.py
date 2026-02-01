@@ -1,5 +1,9 @@
-# Samouczek macierzy – OPERACJE NA MACIERZACH
-# Aplikacja edukacyjna: teoria + przykłady krok po kroku
+# =========================
+# Matrix Guide
+# By: Alan Gładyś, Martyna Hedeszyńska
+#
+# Samouczek operacji na macierzach 
+# =========================
 
 import tkinter as tk
 from tkinter import ttk
