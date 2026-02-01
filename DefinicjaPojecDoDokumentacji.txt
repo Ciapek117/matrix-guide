@@ -1,3 +1,0 @@
-Adjugata (adj) to transpozycja macierzy kofaktorów,
-gdzie każdy kofaktor jest wyznacznikiem podmacierzy (powstałej przez usunięcie odpowiedniego wiersza i kolumny),
-pomnożonym przez (-1)^i+j
